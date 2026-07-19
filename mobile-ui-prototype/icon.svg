@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Circular white background with subtle border -->
+  <circle cx="256" cy="256" r="240" fill="#ffffff" stroke="#e2e8f0" stroke-width="10" />
+  
+  <!-- Soft shadow under the pin -->
+  <ellipse cx="256" cy="390" rx="60" ry="15" fill="#e2e8f0" opacity="0.8" />
+  
+  <!-- Orange Map Pin -->
+  <path d="M256 70 C 160 70, 90 140, 90 236 C 90 340, 256 450, 256 450 C 256 450, 422 340, 422 236 C 422 140, 352 70, 256 70 Z" fill="#ea580c" />
+  
+  <!-- Inner circular white background -->
+  <circle cx="256" cy="216" r="70" fill="#ffffff" />
+  
+  <!-- Orange Clock inside the pin -->
+  <circle cx="256" cy="216" r="50" fill="none" stroke="#ea580c" stroke-width="12" />
+  <!-- Clock hands -->
+  <path d="M256 176 L256 220 L290 220" fill="none" stroke="#ea580c" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AttendX — Geofence Attendance System</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ea580c">
+  <!-- iOS Safari PWA support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="AttendX">
+  <link rel="apple-touch-icon" href="icon.svg">
+  
+  <!-- Google Fonts: Inter & Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Main Web Wrapper (Fills the viewport) -->
+  <div class="web-app-wrapper">
+
+    <!-- ─── HEADER BAR ─── -->
+    <header class="main-header">
+      <div class="header-brand">
+        <span class="brand-logo" style="display: inline-flex; align-items: center; justify-content: center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        </span>
+        <h1>AttendX</h1>
+        <button class="btn btn-secondary" id="btn-pwa-install" style="display: none; padding: 4px 10px; font-size: 11px; margin-left: 15px; border-color: var(--primary); color: var(--primary); align-items: center; gap: 4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          Install App
+        </button>
+      </div>
+      <div class="header-right" id="header-user-menu" style="display: none;">
+        <span class="user-role-badge" id="header-role-badge">Employee</span>
+        <div class="user-avatar-btn" id="btn-user-profile-menu">
+          <span id="user-initials">RD</span>
+        </div>
+        <button class="logout-btn" id="btn-logout" title="Log Out" style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── AUTHENTICATION CONTAINER (LOGIN / REGISTER) ─── -->
+    <main class="auth-container" id="auth-section">
+      
+      <!-- LOGIN VIEW -->
+      <div class="auth-card active" id="login-card">
+        <div class="auth-header">
+          <h2>Sign In</h2>
+          <p>Access your employee or manager portal</p>
+        </div>
+        <form id="form-login">
+          <div class="form-group">
+            <label>Work Email</label>
+            <input type="email" id="login-email" required placeholder="name@company.com" value="employee@company.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" required placeholder="••••••••" value="password123">
+          </div>
+          <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+        <p class="auth-footer">
+          Don't have an account? <a href="#" id="link-show-register">Sign Up</a>
+        </p>
+      </div>
+
+      <!-- REGISTER VIEW WITH BIOMETRIC STEPS -->
+      <div class="auth-card" id="register-card">
+        <div class="auth-header">
+          <h2>Create Account</h2>
+          <p>Register as a new employee</p>
+        </div>
+        
+        <!-- Registration Progress Bar -->
+        <div class="register-progress-bar">
+          <div class="progress-step active" data-step="1">Details</div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="2">Face</div>
+        </div>
+
+        <!-- Step 1: Text Fields -->
+        <div class="register-step-content active" id="register-step-1">
+          <form id="form-register-details">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="reg-name" required placeholder="John Doe">
+              </div>
+              <div class="form-group">
+                <label>Employee ID</label>
+                <input type="text" id="reg-emp-id" required placeholder="EMP1024">
+              </div>
+              <div class="form-group">
+                <label>Work Email</label>
+                <input type="email" id="reg-email" required placeholder="john@company.com">
+              </div>
+              <div class="form-group">
+                <label>Department</label>
+                <select id="reg-dept">
+                  <option>Engineering</option>
+                  <option>Human Resources</option>
+                  <option>Sales & Operations</option>
+                  <option>Marketing</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Portal Role</label>
+                <select id="reg-role">
+                  <option value="user">Employee (Regular Log)</option>
+                  <option value="admin">Manager (Set Bounds / Roster)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Mobile Number</label>
+                <input type="tel" id="reg-phone" required placeholder="+91 98765 43210">
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="reg-password" required placeholder="••••••••">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Continue to Biometrics</button>
+          </form>
+        </div>
+
+        <!-- Step 2: Webcam Face Capture -->
+        <div class="register-step-content" id="register-step-2">
+          <p class="step-desc">Position your face inside the webcam viewport to capture your face profile.</p>
+          <div class="biometric-camera-frame">
+            <video id="reg-camera-stream" autoplay playsinline class="webcam-feed"></video>
+            <div class="camera-face-guide"></div>
+          </div>
+          <div class="photo-preview-box" id="face-captured-preview" style="display: none;">
+            <canvas id="reg-camera-canvas" style="display: none;"></canvas>
+            <img id="captured-avatar-img" alt="Captured Face">
+            <span class="preview-badge">✓ Photo Captured</span>
+          </div>
+          <div class="biometric-actions">
+            <button type="button" class="btn btn-secondary" id="btn-capture-face" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              Capture Profile Photo
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-submit-register" disabled>Complete Registration</button>
+          </div>
+        </div>
+
+        <p class="auth-footer" style="margin-top: 15px;">
+          Already registered? <a href="#" id="link-show-login">Log In</a>
+        </p>
+      </div>
+
+    </main>
+
+    <!-- ─── EMPLOYEE PORTAL MAIN SECTION ─── -->
+    <div class="portal-layout" id="employee-portal" style="display: none;">
+      
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-tab="emp-home">
+            <span class="nav-icon">
+              <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L3 11H6V20C6 20.55 6.45 21 7 21H17C17.55 21 18 20.55 18 20V11H21L12 3Z" fill="#ea580c"/>
+                <rect x="8.5" y="12" width="3" height="3" rx="0.5" fill="white"/>
+                <rect x="12.5" y="14" width="3" height="7" rx="0.5" fill="white"/>
+                <rect x="15.5" y="5" width="1.5" height="4" fill="white"/>
+              </svg>
+            </span>
+            <span class="nav-label">Home</span>
+          </button>
+          <button class="nav-item" data-tab="emp-history">
+            <span class="nav-icon">
+              <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="11" fill="#ea580c"/>
+                <path d="M12 6C8.69 6 6 8.69 6 12C6 12.69 6.12 13.35 6.34 13.97L5.13 14.78C4.78 13.93 4.5 13.01 4.5 12C4.5 7.86 7.86 4.5 12 4.5C16.14 4.5 19.5 7.86 19.5 12C19.5 16.14 16.14 19.5 12 19.5C9.82 19.5 7.87 18.57 6.5 17.07V18.5H5V14.5H9V16H7.35C8.47 17.25 10.14 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6Z" fill="white"/>
+                <path d="M11.5 8V12.5L15 15L15.75 14L12.75 11.75V8H11.5Z" fill="white"/>
+              </svg>
+            </span>
+            <span class="nav-label">History</span>
+          </button>
+          <button class="nav-item" data-tab="emp-analytics">
+            <span class="nav-icon">
+              <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="20" height="20" rx="4" fill="#ea580c"/>
+                <rect x="5" y="12" width="2" height="6" rx="0.5" fill="white"/>
+                <rect x="9" y="9" width="2" height="9" rx="0.5" fill="white"/>
+                <rect x="13" y="11" width="2" height="7" rx="0.5" fill="white"/>
+                <rect x="17" y="6" width="2" height="12" rx="0.5" fill="white"/>
+                <path d="M4 11L8 8L12 10L17 5H15V4H19V8H18V6L12.5 11.5L8.5 9.5L4.5 12.5L4 11Z" fill="white"/>
+              </svg>
+            </span>
+            <span class="nav-label">Analytics</span>
+          </button>
+          <button class="nav-item" data-tab="emp-leaves">
+            <span class="nav-icon">
+              <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="4" width="20" height="16" rx="3" fill="#ea580c"/>
+                <path d="M2.5 5.5L12 12.5L21.5 5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2.5 18.5L9.5 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M21.5 18.5L14.5 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="nav-label">Leaves</span>
+          </button>
+          <button class="nav-item" data-tab="emp-profile">
+            <span class="nav-icon">
+              <svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="11" fill="#ea580c"/>
+                <circle cx="12" cy="8.5" r="3.5" fill="white"/>
+                <path d="M12 13C8.5 13 5.5 15 5 18.5C5.8 19.5 7 20 12 20C17 20 18.2 19.5 19 18.5C18.5 15 15.5 13 12 13Z" fill="white"/>
+              </svg>
+            </span>
+            <span class="nav-label">Profile</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Content Views -->
+      <main class="portal-content">
+        
+        <!-- Tab 1: Employee Home / Check-In -->
+        <section class="tab-view active" id="view-emp-home">
+          <div class="dashboard-grid">
+            
+            <div class="card card-welcome">
+              <div class="welcome-text">
+                <h2>Welcome back, <span id="emp-profile-name">Employee Name</span>!</h2>
+                <p>Software Engineering Department | ID: <strong id="emp-profile-id">#EMP</strong></p>
+              </div>
+              <div class="pulse-status-badge">
+                <span class="status-indicator-dot green"></span> Connected to Geofence Radar
+              </div>
+            </div>
+
+            <!-- Attendance Stats Grid -->
+            <div class="grid-2-col">
+              <div class="card kpi-card">
+                <span class="kpi-label">Monthly Attendance Percentage</span>
+                <div class="kpi-value" id="kpi-attendance-pct">0.0%</div>
+                <span class="kpi-subtext">Office Target: 90%</span>
+              </div>
+              <div class="card kpi-card">
+                <span class="kpi-label">Today's Check-in status</span>
+                <div class="kpi-value orange-text" id="kpi-today-checkin">-- : --</div>
+                <span class="kpi-subtext" id="kpi-today-status">Not Checked In Yet</span>
+              </div>
+            </div>
+
+            <!-- Geofence Check-in Interactive Console -->
+            <div class="card card-interactive-attendance">
+              <h3>Mark Attendance (Secure Verification)</h3>
+              <p class="subtitle">Please select your office location and verify your presence to mark today's attendance.</p>
+              
+              <!-- Location Selector -->
+              <div class="form-group" style="margin-top: 15px;">
+                <label>Select Office Boundary Location</label>
+                <select id="attendance-location-select" class="form-select">
+                  <option value="">Fetching authorized boundaries...</option>
+                </select>
+              </div>
+
+              <!-- Simulator/Demo GPS override -->
+              <div class="form-group checkbox-group" style="margin-bottom: 15px;">
+                <input type="checkbox" id="gps-simulate-checkbox" checked>
+                <label for="gps-simulate-checkbox" style="font-size: 12px; text-transform:none; font-weight:600; color:var(--primary);">Simulate GPS Presence</label>
+              </div>
+
+              <!-- Workflow Stages -->
+              <div class="verification-workflow-container">
+                
+                <!-- Stage 1: GPS Check -->
+                <div class="workflow-stage active" id="stage-gps">
+                  <div class="stage-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  </div>
+                  <h4>Stage 1: GPS Location Verification</h4>
+                  <p>Verifying mobile device coordinates against headquarters geofencing boundary.</p>
+                  
+                  <div class="mock-map-view">
+                    <div class="radar-ping"></div>
+                    <div class="marker marker-hq" style="display: flex; align-items: center; justify-content: center; background: rgba(139, 92, 246, 0.15); border: 1.5px solid #8b5cf6; border-radius: 50%; width: 30px; height: 30px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                        <line x1="9" y1="22" x2="9" y2="16"></line>
+                        <line x1="15" y1="22" x2="15" y2="16"></line>
+                        <line x1="9" y1="16" x2="15" y2="16"></line>
+                        <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M12 6h.01M12 10h.01"></path>
+                      </svg>
+                    </div>
+                    <div class="marker marker-user animate-ping" id="map-user-marker" style="display: flex; align-items: center; justify-content: center; background: rgba(234, 88, 12, 0.2); border: 1.5px solid #ea580c; border-radius: 50%; width: 30px; height: 30px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div class="geofence-circle-area" id="map-radius-circle"></div>
+                    <div class="map-label">Geofence Boundary Map Radar</div>
+                  </div>
+
+                  <div class="telemetry-readout">
+                    <div class="telemetry-item">
+                      <span>Office Distance</span>
+                      <strong id="gps-distance-text">-- m</strong>
+                    </div>
+                    <div class="telemetry-item">
+                      <span>Coordinates</span>
+                      <strong id="gps-coords-text">-- , --</strong>
+                    </div>
+                  </div>
+
+                  <div class="status-banner" id="gps-status-banner">
+                    <span class="status-banner-icon" style="display: inline-flex; align-items: center; justify-content: center;">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                      </svg>
+                    </span>
+                    <div class="status-banner-text">
+                      <strong>Pending Verification</strong>
+                      <p>Awaiting location trigger...</p>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary btn-full" id="btn-verify-gps" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    Verify Location Boundaries
+                  </button>
+                </div>
+
+                <!-- Stage 2: Face Verification -->
+                <div class="workflow-stage" id="stage-face">
+                  <div class="stage-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                  </div>
+                  <h4>Stage 2: Biometrics Identity Approved</h4>
+                  <p>Position face in scanner for authentication check.</p>
+                  <div class="scanner-camera-feed">
+                    <video id="attendance-video-feed" autoplay playsinline class="webcam-feed"></video>
+                    <div class="face-scanner-laser"></div>
+                  </div>
+                  <div class="confidence-indicator">
+                    <div class="confidence-text">Match Confidence: <strong id="face-match-confidence">0%</strong></div>
+                    <div class="confidence-bar-outer">
+                      <div class="confidence-bar-inner" id="face-confidence-fill"></div>
+                    </div>
+                  </div>
+                  <div class="status-banner" id="face-status-banner">
+                    <span class="status-banner-icon" style="display: inline-flex; align-items: center; justify-content: center;">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spinner-inline">
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                      </svg>
+                    </span>
+                    <div class="status-banner-text">
+                      <strong>Biometric Scanner Active</strong>
+                      <p>Detecting landmarks...</p>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary btn-full" id="btn-verify-face" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Capture & Authenticate Face
+                  </button>
+                </div>
+
+                <!-- Stage 3: Log Check-In/Check-Out -->
+                <div class="workflow-stage" id="stage-log">
+                  <div class="stage-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                  </div>
+                  <h4>Stage 3: Log Attendance Summary</h4>
+                  <p>All biometric and geofencing credentials match successfully.</p>
+                  
+                  <div class="summary-details-card">
+                    <div class="summary-detail-item">
+                      <span>Physical Location</span>
+                      <strong id="sum-location-name">Office HQ</strong>
+                    </div>
+                    <div class="summary-detail-item">
+                      <span>Device Verification</span>
+                      <strong style="color: var(--success);">GPS + Biometrics Approved</strong>
+                    </div>
+                    <div class="summary-detail-item">
+                      <span>Verification Time</span>
+                      <strong id="sum-time-stamp">09:41 AM</strong>
+                    </div>
+                    <div class="summary-detail-item" style="flex-direction: column; align-items: center; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; gap: 8px;">
+                      <span>Captured Verification Selfie</span>
+                      <img id="sum-captured-selfie" alt="Selfie Capture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); box-shadow: var(--shadow-glow); display: none;">
+                    </div>
+                  </div>
+
+                  <div class="log-actions" style="margin-top: 20px;">
+                    <button class="btn btn-primary btn-full" id="btn-submit-checkin">Confirm Check-In</button>
+                    <button class="btn btn-secondary btn-full" id="btn-submit-checkout" style="display: none;">Confirm Check-Out</button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Summary Table Card -->
+            <div class="card">
+              <h3>Today's Shift Log</h3>
+              <div class="summary-table">
+                <div class="summary-row">
+                  <span style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Check-In Logged
+                  </span>
+                  <strong id="today-checkin-time">-- : --</strong>
+                </div>
+                <div class="summary-row">
+                  <span style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Check-Out Logged
+                  </span>
+                  <strong id="today-checkout-time">-- : --</strong>
+                </div>
+                <div class="summary-row">
+                  <span style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <path d="M5 2h14M5 22h14M19 2v4a7 7 0 0 1-7 7 7 7 0 0 1-7-7V2M5 22v-4a7 7 0 0 1 7-7 7 7 0 0 1 7 7v4" />
+                    </svg>
+                    Working Hours
+                  </span>
+                  <strong id="today-working-hours">0.0 hrs</strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Tab 2: Attendance History -->
+        <section class="tab-view" id="view-emp-history">
+          <div class="card">
+            <div class="card-header-flex">
+              <h2>My Attendance History Logs</h2>
+              <div class="search-box">
+                <input type="text" id="history-search-input" placeholder="Search by date (YYYY-MM-DD)...">
+              </div>
+            </div>
+            
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Check-In</th>
+                    <th>Check-Out</th>
+                    <th>Working Hours</th>
+                    <th>Office Geofence</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="emp-history-tbody">
+                  <tr>
+                    <td colspan="6" class="text-center">Loading attendance records...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 3: Analytics -->
+        <section class="tab-view" id="view-emp-analytics">
+          <div class="dashboard-grid">
+            <div class="card">
+              <h3>Monthly Attendance Breakdown</h3>
+              <div class="analytics-row" style="margin-top: 20px;">
+                <div class="analytics-col-card">
+                  <span class="label">Days Present</span>
+                  <span class="val green-text" id="analytics-days-present">0</span>
+                </div>
+                <div class="analytics-col-card">
+                  <span class="label">Late Arrivals</span>
+                  <span class="val orange-text" id="analytics-days-late">0</span>
+                </div>
+                <div class="analytics-col-card">
+                  <span class="label">Half Days</span>
+                  <span class="val text-muted" id="analytics-days-half">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>Weekly Logging Punctuality (Hours)</h3>
+              <div class="visual-chart-box">
+                <div class="chart-bar-col">
+                  <div class="bar-fill" style="height: 85%;"><span>8.5h</span></div>
+                  <span class="bar-label">Mon</span>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="bar-fill" style="height: 90%;"><span>9.0h</span></div>
+                  <span class="bar-label">Tue</span>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="bar-fill" style="height: 60%;"><span>6.0h</span></div>
+                  <span class="bar-label">Wed</span>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="bar-fill" style="height: 80%;"><span>8.0h</span></div>
+                  <span class="bar-label">Thu</span>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="bar-fill" style="height: 75%;"><span>7.5h</span></div>
+                  <span class="bar-label">Fri</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 4: Leave Application -->
+        <section class="tab-view" id="view-emp-leaves">
+          <div class="dashboard-grid">
+            
+            <!-- Leave Balance -->
+            <div class="card">
+              <h3>Leave Balances</h3>
+              <div class="leave-balance-grid">
+                <div class="balance-card">
+                  <span class="num">12</span>
+                  <span class="label">Privilege Leaves</span>
+                </div>
+                <div class="balance-card">
+                  <span class="num">8</span>
+                  <span class="label">Sick Leaves</span>
+                </div>
+                <div class="balance-card">
+                  <span class="num">6</span>
+                  <span class="label">Casual Leaves</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Apply Form -->
+            <div class="card">
+              <h3>Submit Leave Application</h3>
+              <form id="form-apply-leave" style="margin-top: 15px;">
+                <div class="form-group">
+                  <label>Leave Type</label>
+                  <select id="leave-type" class="form-select">
+                    <option>Casual Leave</option>
+                    <option>Sick Leave</option>
+                    <option>Privilege Leave</option>
+                  </select>
+                </div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" id="leave-start" required>
+                  </div>
+                  <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" id="leave-end">
+                  </div>
+                </div>
+                <div class="form-group checkbox-group">
+                  <input type="checkbox" id="leave-halfday">
+                  <label for="leave-halfday">Apply for Half-Day</label>
+                </div>
+                <div class="form-group" id="halfday-session-box" style="display: none;">
+                  <label>Session Selection</label>
+                  <select id="leave-session" class="form-select">
+                    <option>First Half (Morning)</option>
+                    <option>Second Half (Afternoon)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Reason for Leave</label>
+                  <textarea id="leave-reason" rows="3" required placeholder="Describe the reason for leave..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Leave Application</button>
+              </form>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Tab 5: Employee Profile -->
+        <section class="tab-view" id="view-emp-profile">
+          <div class="dashboard-grid">
+            <div class="card text-center">
+              <div class="profile-large-avatar" id="profile-avatar-initials">RD</div>
+              <h2 id="profile-full-name" style="margin-top: 15px;">Rushi Dhanraj</h2>
+              <p id="profile-email" style="color: var(--text-secondary); margin-bottom: 10px;">employee@company.com</p>
+              <span class="badge badge-success" style="margin-bottom: 15px;">Active Account</span>
+              <button class="btn btn-secondary btn-full logout-profile-btn" id="btn-profile-logout" style="margin-top: 15px; border-color: var(--danger-glow); color: var(--danger); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Log Out from Device
+              </button>
+            </div>
+
+            <div class="card">
+              <h3>Change Password</h3>
+              <form id="form-change-password" style="margin-top: 15px;">
+                <div class="form-group">
+                  <label>Current Password</label>
+                  <input type="password" id="current-password" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                  <label>New Password</label>
+                  <input type="password" id="new-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Secure Password</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+    <!-- ─── MANAGER PORTAL MAIN SECTION ─── -->
+    <div class="portal-layout" id="manager-portal" style="display: none;">
+      
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-tab="mgr-home">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </span>
+            <span class="nav-label">Analytics</span>
+          </button>
+          <button class="nav-item" data-tab="mgr-boundaries">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <span class="nav-label">Boundaries</span>
+          </button>
+          <button class="nav-item" data-tab="mgr-roster">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </span>
+            <span class="nav-label">Roster</span>
+          </button>
+          <button class="nav-item" data-tab="mgr-logs">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                <line x1="9" y1="9" x2="15" y2="9" />
+                <line x1="9" y1="13" x2="15" y2="13" />
+                <line x1="9" y1="17" x2="15" y2="17" />
+              </svg>
+            </span>
+            <span class="nav-label">Logs</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Manager Main Content Views -->
+      <main class="portal-content">
+        
+        <!-- Tab 1: Manager Home / Analytics -->
+        <section class="tab-view active" id="view-mgr-home">
+          <div class="dashboard-grid">
+            
+            <div class="card card-welcome">
+              <h2>Manager Dashboard Console</h2>
+              <p>Configure company site coordinates, manage personnel rosters, and export audit reports.</p>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="leave-balance-grid">
+              <div class="balance-card">
+                <span class="num" id="mgr-kpi-total-users">0</span>
+                <span class="label">Registered Employees</span>
+              </div>
+              <div class="balance-card">
+                <span class="num" id="mgr-kpi-total-locations">0</span>
+                <span class="label">Active Geofences</span>
+              </div>
+              <div class="balance-card">
+                <span class="num" id="mgr-kpi-today-logs">0</span>
+                <span class="label">Today's Present Logs</span>
+              </div>
+            </div>
+
+            <!-- Attendance breakdown card -->
+            <div class="card">
+              <h3>Today's Attendance Status Metrics</h3>
+              <p class="subtitle" style="margin-bottom: 15px;">Overall breakdown of logs registered today.</p>
+              
+              <div class="summary-table">
+                <div class="summary-row">
+                  <span>🟢 Present on Time</span>
+                  <strong id="mgr-stat-present">0</strong>
+                </div>
+                <div class="summary-row">
+                  <span>🟡 Late Logins</span>
+                  <strong id="mgr-stat-late">0</strong>
+                </div>
+                <div class="summary-row">
+                  <span>🔴 Absent / Out</span>
+                  <strong id="mgr-stat-absent">0</strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Tab 2: Geofence Boundaries (Manager Setup) -->
+        <section class="tab-view" id="view-mgr-boundaries">
+          <div class="dashboard-grid">
+            
+            <!-- Boundary Creator -->
+            <div class="card">
+              <h3 style="display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                Create Geofence Boundary
+              </h3>
+              <p class="subtitle">Enter location details. Employees checking in within the radius limit will be marked Present.</p>
+              
+              <form id="form-create-location" style="margin-top: 15px;">
+                <div class="form-group">
+                  <label>Boundary Location Name</label>
+                  <input type="text" id="loc-name" required placeholder="e.g. Headquarters Office, Ahmedabad Ognaj Office">
+                </div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Latitude Coordinates</label>
+                    <input type="number" step="any" id="loc-lat" required placeholder="18.5204">
+                  </div>
+                  <div class="form-group">
+                    <label>Longitude Coordinates</label>
+                    <input type="number" step="any" id="loc-lng" required placeholder="73.8567">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Geofence Radius Limit (meters)</label>
+                  <input type="number" id="loc-radius" required placeholder="150" value="150">
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <input type="text" id="loc-desc" placeholder="Main development block and courtyard">
+                </div>
+                <button type="submit" class="btn btn-primary">Create Boundary Area</button>
+              </form>
+            </div>
+
+            <!-- Boundaries List -->
+            <div class="card">
+              <h3>Active Boundaries</h3>
+              <div class="table-container" style="margin-top: 15px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Coords</th>
+                      <th>Radius</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mgr-locations-tbody">
+                    <tr>
+                      <td colspan="4" class="text-center">Loading boundaries...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Tab 3: Employee Roster -->
+        <section class="tab-view" id="view-mgr-roster">
+          <div class="card">
+            <div class="card-header-flex">
+              <h2>Registered Employees</h2>
+              <div class="search-box">
+                <input type="text" id="roster-search-input" placeholder="Search employees by name...">
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Emp ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Biometrics Registered</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="mgr-roster-tbody">
+                  <tr>
+                    <td colspan="7" class="text-center">Loading employee list...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 4: Daily Logs & Report Export -->
+        <section class="tab-view" id="view-mgr-logs">
+          <div class="card">
+            <div class="card-header-flex">
+              <h2>Global Attendance Logs</h2>
+              <div class="logs-header-actions" style="display: flex; gap: 10px;">
+                <input type="date" id="mgr-logs-date-filter" class="form-input" style="max-width: 150px;">
+                <button class="btn btn-secondary" id="btn-export-logs" style="display: inline-flex; align-items: center; gap: 6px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Export CSV Report
+                </button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Check-In</th>
+                    <th>Check-Out</th>
+                    <th>Office Geofence</th>
+                    <th>Hours</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="mgr-logs-tbody">
+                  <tr>
+                    <td colspan="8" class="text-center">Loading attendance logs...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
