@@ -15,6 +15,19 @@ const nextConfig = {
       },
     ];
   },
+  // SPA Fallback for Flutter Web under /employee
+  async rewrites() {
+    return [
+      {
+        source: '/employee',
+        destination: '/employee/index.html',
+      },
+      {
+        source: '/employee/:path((?!.*\\.[\\w]+$).*)',
+        destination: '/employee/index.html',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

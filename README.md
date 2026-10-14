@@ -38,7 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) for the Admin Dashboard.
 flutter run --dart-define=API_BASE_URL=http://localhost:3000/api
 
 # Or point to production Vercel deployment
-flutter run --dart-define=API_BASE_URL=https://your-app.vercel.app/api
+flutter run --dart-define=API_BASE_URL=https://next-admin-xi-rouge.vercel.app/api
 ```
 
 For complete documentation on deployment, tests, and environment configuration, refer to [next-admin/README.md](file:///f:/Geo_attendence/next-admin/README.md).

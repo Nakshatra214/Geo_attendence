@@ -110,7 +110,7 @@ The Flutter application (`/lib`) communicates with the Next.js API using a confi
 ### Running Mobile App Against Production (Vercel)
 
 ```bash
-flutter run --dart-define=API_BASE_URL=https://your-geoattend-app.vercel.app/api
+flutter run --dart-define=API_BASE_URL=https://next-admin-xi-rouge.vercel.app/api
 ```
 
 ---
@@ -133,24 +133,35 @@ node tests/lifecycle.test.mjs
 
 ---
 
-## 7. Production Deployment to Vercel
+## 7. Production Deployment to Vercel (Unified Single Deployment)
 
-1. **Push Code to GitHub / GitLab**.
-2. **Import Project into Vercel**:
-   - In the Vercel dashboard, click **Add New...** → **Project**.
-   - Select your repository.
-   - **Root Directory**: Select `next-admin`.
-   - **Framework Preset**: `Next.js` (auto-detected).
-3. **Configure Environment Variables in Vercel**:
+This deployment serves both the **Next.js Admin Dashboard** and the **Flutter Web Employee Attendance Portal** under **ONE domain and ONE Vercel project**:
+
+- **Next.js Admin Dashboard**: Hosted at `/` and `/login`
+- **Employee Attendance Web Portal**: Hosted at `/employee` and `/employee/*`
+- **Backend REST API**: Unchanged at `/api/*`
+
+### Architecture & Build Process
+1. Flutter Web is compiled with `--base-href "/employee/" --release` into `next-admin/public/employee/`.
+2. Next.js serves static assets directly from `public/employee` without requiring the Flutter SDK on Vercel's build environment.
+3. Next.js `rewrites()` in `next.config.mjs` provide SPA fallback for `/employee/*` so page refreshes and employee subpaths route directly to `index.html`.
+4. `next-admin/scripts/sync-flutter.mjs` automatically synchronizes local Flutter builds into `public/employee` during `npm run prebuild`.
+
+### Deployment Steps
+1. **Push Code to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Deploy Next.js Admin + Flutter Employee Attendance Web portal"
+   git push origin main
+   ```
+2. **Vercel Project Settings**:
+   - **Root Directory**: `next-admin`
+   - **Framework Preset**: `Next.js`
+3. **Environment Variables**:
    - `NEXT_PUBLIC_SUPABASE_URL` = `https://<project-ref>.supabase.co`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `<your-anon-key>`
    - `SUPABASE_SERVICE_ROLE_KEY` = `<your-service-role-key>`
-   - `NEXT_PUBLIC_APP_URL` = `https://<your-project-name>.vercel.app`
-4. **Deploy**:
-   - Click **Deploy**.
-   - Once deployed, your dashboard and API routes will be immediately accessible on your Vercel URL.
-5. **Update Mobile App**:
-   - Rebuild mobile app with `--dart-define=API_BASE_URL=https://<your-project-name>.vercel.app/api`.
+   - `NEXT_PUBLIC_APP_URL` = `https://next-admin-xi-rouge.vercel.app`
 
 ---
 

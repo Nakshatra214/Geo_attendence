@@ -1,11 +1,20 @@
+import 'package:flutter/foundation.dart';
+
 // ─── App Constants ────────────────────────────────────────────────────────────
 class AppConstants {
-  // Configurable API base URL: defaults to Next.js on localhost:3000/api
-  // Can be overridden via: flutter run --dart-define=API_BASE_URL=https://your-domain.vercel.app/api
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:3000/api',
-  );
+  static const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
+
+  // Configurable API base URL:
+  // On web, dynamically resolves relative to current host origin (/api)
+  // On mobile (Android/iOS), defaults to http://localhost:3000/api unless overridden via --dart-define=API_BASE_URL=...
+  static String get baseUrl {
+    if (_envBaseUrl.isNotEmpty) return _envBaseUrl;
+    if (kIsWeb) {
+      final base = Uri.base.resolve('/api').toString();
+      return base.endsWith('/') ? base.substring(0, base.length - 1) : base;
+    }
+    return 'http://localhost:3000/api';
+  }
 
   static const String tokenKey   = 'auth_token';
   static const String userKey    = 'auth_user';
