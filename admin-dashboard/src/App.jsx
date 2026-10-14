@@ -51,7 +51,7 @@ function AppContent() {
           <div className="topbar-title">{PAGE_TITLES[activePage]}</div>
           <div className="topbar-actions">
             <div style={{ fontSize: 12, color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 6, padding: '4px 10px' }}>
-              🟢 API: localhost:5000
+              🟢 API: localhost:3000 (Supabase Next.js)
             </div>
           </div>
         </div>

@@ -1,0 +1,13 @@
+{
+  "name": "geoattend-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GeoAttend (AttendX) workspace - active runtime powered by Next.js and Supabase PostgreSQL",
+  "scripts": {
+    "dev": "npm --prefix next-admin run dev",
+    "build": "npm --prefix next-admin run build",
+    "start": "npm --prefix next-admin run start",
+    "test": "npm --prefix next-admin run test",
+    "lint": "npm --prefix next-admin run lint"
+  }
+}
